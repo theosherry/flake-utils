@@ -54,6 +54,7 @@ let
     {
       # Use the legacy packages since it's more forgiving.
       legacyPackages = packages;
+
     }
     //
     (
@@ -77,4 +78,17 @@ let
     )
   );
 in
-outputs
+  outputs // {
+    # Add an overlay
+    overlay = final: prev: ( 
+      let
+        system = prev.system;
+      in
+      if outputs.legacyPackages ? ${system}
+      then {
+        "${name}" = outputs.legacyPackages.${system};
+      }
+      else throw "Package ${name} is not supported by system ${system}"
+    );
+  }
+
